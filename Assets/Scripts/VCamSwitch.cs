@@ -7,7 +7,6 @@ using UnityEngine.InputSystem;
 
 public class VCamSwitch : MonoBehaviour
 {
-    [SerializeField] private PlayerInput playerInput;
     [SerializeField] private int priorityBoostAmount = 10;
 
     private CinemachineVirtualCamera virtualCamera;
@@ -16,7 +15,7 @@ public class VCamSwitch : MonoBehaviour
     void Awake()
     {
         virtualCamera = GetComponent<CinemachineVirtualCamera>();
-        aimAction = playerInput.actions["Aim"];
+        aimAction = PlayerInputHandler.Instance.AimAction;
     }
 
 
