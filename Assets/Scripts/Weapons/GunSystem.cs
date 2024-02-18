@@ -8,14 +8,16 @@ public class GunSystem : MonoBehaviour
     //public ImpactType ImpactType;
     public GunType type;
     public string gunName;
+    public int rigBuilderLayerNumber;
     //public GameObject modelPrefab;
     //public Vector3 spawnPoint;
     private Vector3 spawnRotation;
 
-
+    [SerializeField] private GameObject gunModel;
 
     [SerializeField] private bool shouldRecoil = true;
 
+    [SerializeField] private AmmoConfigScriptableObject ammoConfig;
     [SerializeField] private ShootConfigScriptableObject shootConfig;
     [SerializeField] private TrailConfigScriptableObject trailConfig;
     [SerializeField] private DamageConfigScriptableObject damageConfig;
@@ -29,7 +31,7 @@ public class GunSystem : MonoBehaviour
 
 
 
-    public void Start()
+    public void Awake()
     {
         //activeMonoBehaviour = ActiveMonoBehaviour;
 
@@ -41,6 +43,8 @@ public class GunSystem : MonoBehaviour
         spawnRotation = new Vector3(spawnRotationQuaternion.x, spawnRotationQuaternion.y, spawnRotationQuaternion.z);
         trailPool = new ObjectPool<TrailRenderer>(CreateTrail);
         shootSystem = GetComponentInChildren<ParticleSystem>();
+        ammoConfig.currentClipAmmo = ammoConfig.clipSize;
+        ammoConfig.currentAmmo = ammoConfig.maxAmmo;
     }
 
 
@@ -55,7 +59,10 @@ public class GunSystem : MonoBehaviour
         if (wantsToShoot)
         {
             lastFrameWantedToShoot = true;
-            Shoot();
+            if (ammoConfig.CanShoot())
+            {
+                Shoot();
+            }
         }
 
         if (!wantsToShoot && lastFrameWantedToShoot)
@@ -82,12 +89,19 @@ public class GunSystem : MonoBehaviour
         }
         lastShootTime = Time.time;
         shootSystem.Play();
+        ammoConfig.currentClipAmmo--;
         var spreadAmount = shootConfig.GetSpread(Time.time - initialClickTime);
         if (shouldRecoil)
         {
             transform.forward += transform.TransformDirection(spreadAmount);
         }
         var shootDirection = shootSystem.transform.forward + spreadAmount;
+        ShootRaycast(shootDirection);
+    }
+
+
+    private void ShootRaycast(Vector3 shootDirection)
+    {
         if (Physics.Raycast(shootSystem.transform.position, shootDirection, out RaycastHit hit, float.MaxValue, shootConfig.hitMask))
         {
             StartCoroutine(PlayTrail(shootSystem.transform.position, hit.point, hit));
@@ -97,9 +111,7 @@ public class GunSystem : MonoBehaviour
             var point = shootSystem.transform.position + shootDirection * trailConfig.missDistance;
             StartCoroutine(PlayTrail(shootSystem.transform.position, point, new RaycastHit()));
         }
-
     }
-
 
     private IEnumerator PlayTrail(Vector3 startPoint, Vector3 endPoint, RaycastHit hit)
     {
@@ -119,6 +131,16 @@ public class GunSystem : MonoBehaviour
             yield return null;
         }
         instance.transform.position = endPoint;
+        CheckHit(endPoint, hit);    
+        yield return new WaitForSeconds(trailConfig.duration);
+        yield return null;
+        instance.emitting = false;
+        instance.gameObject.SetActive(false);
+        trailPool.Release(instance);
+    }
+
+    private void CheckHit(Vector3 endPoint, RaycastHit hit)
+    {
         if (hit.collider != null)
         {
             if (hit.collider.TryGetComponent<IDamageable>(out IDamageable damageable))
@@ -130,11 +152,6 @@ public class GunSystem : MonoBehaviour
                 ParticlePool.Instance.HitParticlesPool.GetFromPool(endPoint);
             }
         }
-        yield return new WaitForSeconds(trailConfig.duration);
-        yield return null;
-        instance.emitting = false;
-        instance.gameObject.SetActive(false);
-        trailPool.Release(instance);
     }
 
     private TrailRenderer CreateTrail()
@@ -153,4 +170,34 @@ public class GunSystem : MonoBehaviour
         return trail;
     }
 
+
+
+
+    public bool AddAmmo(int amount, GunType ammoType)
+    {
+        if (ammoType != type)
+        {
+            return false;
+        }
+        return ammoConfig.AddAmmo(amount);
+    }
+
+    public void Reload()
+    {
+        ammoConfig.Reload();
+    }
+
+    public bool CanReload() => ammoConfig.CanReload();
+
+    public bool ShouldAutoReload() => ammoConfig.currentClipAmmo == 0;
+
+    public float GetReloadTime() => ammoConfig.reloadTime;
+
+    public int GetCurrentClipAmmo() => ammoConfig.currentClipAmmo;
+
+    public int GetClipSize() => ammoConfig.clipSize;
+
+    public string GetAmmoAmoubtInfoString() =>  $"{ammoConfig.currentClipAmmo}/{ammoConfig.currentAmmo}";
+
+    public void SetActiveGunModel(bool active) => gunModel.SetActive(active);
 }

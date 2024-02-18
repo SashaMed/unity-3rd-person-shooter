@@ -6,6 +6,8 @@ using UnityEngine.InputSystem;
 
 public  class PlayerInputHandler : MonoBehaviour
 {
+    public InputAction ScrollAction { get; private set; }
+    public InputAction RunAction { get; private set; }
     public InputAction MoveAction { get; private set; }
     public InputAction JumpAction { get; private set; }
     public InputAction ShootAction { get; private set; }
@@ -28,5 +30,7 @@ public  class PlayerInputHandler : MonoBehaviour
         JumpAction = playerInput.actions["Jump"];
         ShootAction = playerInput.actions["Shoot"];
         AimAction = playerInput.actions["Aim"];
+        RunAction = playerInput.actions["Run"];
+        ScrollAction = playerInput.actions["Scroll"];
     }
 }

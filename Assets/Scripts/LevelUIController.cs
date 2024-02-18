@@ -1,12 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class LevelUIController : MonoBehaviour
 {
-    [SerializeField] private GameObject thirdPersonIcon;
-    [SerializeField] private GameObject AimIcon;
+    [SerializeField] private GameObject mainMenuUI;
 
+    [Header("Gun UI")]
+    [SerializeField] private TextMeshProUGUI gunNameText;
+    [SerializeField] private TextMeshProUGUI ammoAmountText;
+    [SerializeField] private Image reloadImage;
+
+    [Header("Player Health UI")]
+    [SerializeField] private TextMeshProUGUI playerHealthText;
+    [SerializeField] private Slider playerHealthSlider;
+    [SerializeField] private Image healthImage;
+
+    [Header("Level End UI")]
+    [SerializeField] private GameObject leveEndUI;
+    [SerializeField] private TextMeshProUGUI headerLevelEndUI;
+    [SerializeField] private TextMeshProUGUI victoriesLevelEndUI;
+    [SerializeField] private TextMeshProUGUI defeadsLevelEndUI;
 
     public static LevelUIController Instance { get; private set; }
 
@@ -21,23 +38,59 @@ public class LevelUIController : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        Time.timeScale = 0;
+        leveEndUI.SetActive(false);
+        mainMenuUI.SetActive(true);
     }
 
-    private void Start()
+    public void ShowLevelEndUI(string header, int victories, int defeats)
     {
-        ChangeAimImageToThirdPersonIcon();
+        leveEndUI.SetActive(true);
+        headerLevelEndUI.text= header;
+        victoriesLevelEndUI.text = "victories " + victories;
+        defeadsLevelEndUI.text = "defeats " + defeats;
+        Cursor.lockState = CursorLockMode.None;
+
     }
 
-    public void ChangeAimImageToThirdPersonIcon()
+    public void SetFillForReloadImage(float amount)
     {
-        thirdPersonIcon.SetActive(true);
-        AimIcon.SetActive(false);
+        reloadImage.fillAmount = amount;
     }
 
-    public void ChangeAimImageToAimIicon()
+    public void SetGunName(string text)
     {
-        thirdPersonIcon.SetActive(false);
-        AimIcon.SetActive(true);
+        gunNameText.text = text;
     }
 
+    public void SetAmmoAmountText(string text)
+    {
+        ammoAmountText.text = text;
+    }
+
+
+    public void SetPlayerHealth(float value, string text)
+    {
+        healthImage.fillAmount = value;
+        playerHealthText.text = text;
+        playerHealthSlider.value = value;
+    }
+
+    public void OnExitClick()
+    {
+        Application.Quit();
+    }
+
+    public void OnRestartClick()
+    {
+        var sceneNum = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(sceneNum);
+    }
+
+    public void OnStartClick()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Time.timeScale = 1;
+        mainMenuUI.SetActive(false);
+    }
 }

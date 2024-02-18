@@ -5,7 +5,6 @@ using UnityEngine;
 public class ParticleSystemAutoReturnToPool : MonoBehaviour
 {
     private ParticleSystem particle;
-    [SerializeField] private float awaitTime = 1f;
     [SerializeField] private string particlePoolId = "null";
 
 

@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class TurretController : MonoBehaviour
 {
-
+    [SerializeField] private GameObject explosionParticle;
     [SerializeField] private GameObject turretHead;
     [SerializeField] private float rotationSpeed = 20;
     [SerializeField] private float playerDetectedRotationSpeed = 40;
@@ -13,22 +14,22 @@ public class TurretController : MonoBehaviour
     [SerializeField] private GunSystem gun;
 
     private bool canRotate = true;
+    private bool wasHitedRecently;
     private bool playerWasRecentlyDetected;
-    private Vector3 lastPlayerPosition = Vector3.zero;
+    private Vector3 hitPosition;
     private TurretDetection detection;
     private EnemyHealth healthSystem;
 
-    // Start is called before the first frame update
+
     void Start()
     {
         healthSystem= GetComponent<EnemyHealth>();
-        //gun = GetComponentInChildren<GunSystem>();
         detection = GetComponent<TurretDetection>();
         healthSystem.OnDeath += DeathHandler;
         healthSystem.OnTakeDamage += DamageHandler;
     }
 
-    // Update is called once per frame
+
     void Update()
     {
         if (detection.PlayerDetected)
@@ -37,8 +38,13 @@ public class TurretController : MonoBehaviour
             if (!playerWasRecentlyDetected)
             {
                 StopAllCoroutines();
+                wasHitedRecently = false;
                 playerWasRecentlyDetected = true;
             }
+        }
+        else if (wasHitedRecently)
+        {
+            RotateToHit();
         }
         else
         {
@@ -65,7 +71,6 @@ public class TurretController : MonoBehaviour
         }
 
         canRotate = true;
-        //Debug.Log("end of WaitForPlayerApearsAgainCoroutine");
     }
 
     private void RotateTurret()
@@ -87,12 +92,22 @@ public class TurretController : MonoBehaviour
         }
     }
 
+
+    private void RotateToHit()
+    {
+        var directionToPlayer = hitPosition - turretHead.transform.position;
+        directionToPlayer.y = 0;
+        var lookRotation = Quaternion.LookRotation(directionToPlayer);
+        turretHead.transform.rotation = Quaternion.Lerp(turretHead.transform.rotation, lookRotation, Time.deltaTime * playerDetectedRotationSpeed);
+    }
+
     private void DeathHandler(Vector3 pos)
     {
         var turretHeadRB = turretHead.GetComponent<Rigidbody>();
         turretHeadRB.isKinematic = false;
         var direction = new Vector3(Random.Range(-1, 1), Random.Range(-1, 1), Random.Range(-1, 1));
-        turretHeadRB.AddForce((direction + Vector3.up) * explosionForce, ForceMode.Impulse); 
+        turretHeadRB.AddForce((direction + Vector3.up) * explosionForce, ForceMode.Impulse);
+        explosionParticle.SetActive(true);
         gameObject.SetActive(false);
     }
 
@@ -101,6 +116,19 @@ public class TurretController : MonoBehaviour
     private void DamageHandler(float damage,Vector3 pos)
     {
         ParticlePool.Instance.DamageablesHitParticlesPool.GetFromPool(pos);
+        if (!wasHitedRecently && !playerWasRecentlyDetected)
+        {
+            wasHitedRecently = true;
+            hitPosition= pos;
+            StartCoroutine(ResetRecentlyHitCoroutine());
+        }
+    }
+
+    private IEnumerator ResetRecentlyHitCoroutine()
+    {
+        yield return new WaitForSeconds(0.5f);
+        wasHitedRecently = false;
+        hitPosition = Vector3.zero;
     }
 
 }

@@ -28,13 +28,13 @@ public class VCamSwitch : MonoBehaviour
     private void CancelAim()
     {
         virtualCamera.Priority -= priorityBoostAmount;
-        LevelUIController.Instance.ChangeAimImageToThirdPersonIcon();
+        //LevelUIController.Instance.ChangeAimImageToThirdPersonIcon();
     }
 
     private void StartAim()
     {
         virtualCamera.Priority += priorityBoostAmount;
-        LevelUIController.Instance.ChangeAimImageToAimIicon();
+        //LevelUIController.Instance.ChangeAimImageToAimIicon();
     }
 
     private void OnDisable()

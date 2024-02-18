@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CharacterController), typeof(PlayerInput))]
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private float playerRunMultiplier = 1.4f;
     [SerializeField] private float rotationSpeed = 5.0f;
     [SerializeField] private float playerSpeed = 2.0f;
     [SerializeField] private float jumpHeight = 1.0f;
@@ -24,7 +25,7 @@ public class PlayerController : MonoBehaviour
     private bool groundedPlayer;
     private Animator animator;
 
-
+    private bool isDead = false;
 
     private InputAction shootAction;
 
@@ -35,68 +36,51 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        var health = GetComponent<PlayerHealth>();
+        health.OnDeath += Death;
         animator = GetComponent<Animator>();
         controller = gameObject.GetComponent<CharacterController>();
         cameraTransform = Camera.main.transform;
-        Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.lockState = CursorLockMode.Locked;
     }
 
-
-    //private void OnEnable()
-    //{
-    //    shootAction = PlayerInputHandler.Instance.ShootAction;
-    //    shootAction.performed += _ => ShootBullet();
-    //}
-
-
-    //private void OnDisable()
-    //{
-    //    shootAction.performed -= _ => ShootBullet();
-    //}
-
-    //private void ShootBullet()
-    //{
-    //    RaycastHit hit;
-    //    var bullet = Instantiate(bulletPrefab, bulletSpawnPos.position, Quaternion.identity, this.transform);
-    //    var projectile = bullet.GetComponent<Projectile>();
-    //    if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, Mathf.Infinity))
-    //    {
-    //        projectile.Target = hit.point;
-    //        projectile.Hit = true;
-    //    }
-    //    else
-    //    {
-    //        projectile.Target = cameraTransform.position + cameraTransform.position * 25;
-    //        projectile.Hit = false;
-    //    }
-         
-    //}
+    private void Death(Vector3 pos)
+    {
+        isDead= true;
+        animator.CrossFade("death", animationPlayTransition);
+    }
 
     void Update()
     {
-        aimTarget.position = cameraTransform.position + cameraTransform.forward * aimDistance; 
+        if (isDead) 
+        {
+            return;
+        }
+        HorizontalMovement();
+        SetAnimationParameters();
+        VerticalMovement();
+        PlayerRotation();
+    }
+
+
+    private void PlayerRotation()
+    {
+        aimTarget.position = cameraTransform.position + cameraTransform.forward * aimDistance;
+        var cameraAngleY = cameraTransform.eulerAngles.y;
+        var rotation = Quaternion.Euler(0, cameraAngleY, 0);
+        transform.rotation = Quaternion.Lerp(transform.rotation, rotation, rotationSpeed * Time.deltaTime);
+    }
+
+    private void VerticalMovement()
+    {
         groundedPlayer = controller.isGrounded;
         if (groundedPlayer && playerVelocity.y < 0)
         {
             playerVelocity.y = 0f;
         }
-
-        var moveInput = PlayerInputHandler.Instance.MoveAction.ReadValue<Vector2>();
-
-        currentAnimationBlendVector = Vector2.SmoothDamp(currentAnimationBlendVector, moveInput, ref animationVelocity, animationSmoothTime);
-        var move = new Vector3(currentAnimationBlendVector.x, 0, currentAnimationBlendVector.y);
-        move = move.x * cameraTransform.right.normalized + move.z * cameraTransform.forward.normalized;
-        controller.Move(move * Time.deltaTime * playerSpeed);
-
-        animator.SetFloat("moveX", currentAnimationBlendVector.x);
-        animator.SetFloat("moveZ", currentAnimationBlendVector.y);
-
-        // Changes the height position of the player..
-
         var jumpInput = PlayerInputHandler.Instance.JumpAction.triggered;
         if (jumpInput && groundedPlayer)
         {
-            //animator.SetBool("jump", true);
             animator.CrossFade("jump", animationPlayTransition);
             playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
 
@@ -105,8 +89,34 @@ public class PlayerController : MonoBehaviour
         playerVelocity.y += gravityValue * Time.deltaTime;
         controller.Move(playerVelocity * Time.deltaTime);
 
-        var cameraAngleY = cameraTransform.eulerAngles.y;
-        var rotation = Quaternion.Euler(0,cameraAngleY, 0);
-        transform.rotation = Quaternion.Lerp(transform.rotation, rotation, rotationSpeed * Time.deltaTime);
+    }
+
+    private void HorizontalMovement()
+    {
+        var moveInput = PlayerInputHandler.Instance.MoveAction.ReadValue<Vector2>();
+
+        currentAnimationBlendVector = Vector2.SmoothDamp(currentAnimationBlendVector, moveInput, ref animationVelocity, animationSmoothTime);
+        var move = new Vector3(currentAnimationBlendVector.x, 0, currentAnimationBlendVector.y);
+        move = move.x * cameraTransform.right.normalized + move.z * cameraTransform.forward.normalized;
+        if (Keyboard.current.shiftKey.isPressed)
+        {
+            move *= playerRunMultiplier;
+        }
+        controller.Move(move * Time.deltaTime * playerSpeed);
+    }
+
+    private void SetAnimationParameters()
+    {
+        animator.SetFloat("moveX", currentAnimationBlendVector.x);
+        animator.SetFloat("moveZ", currentAnimationBlendVector.y);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        var collectible = other.GetComponent<ICollectible>();
+        if (collectible != null)
+        {
+            collectible.Collect(gameObject);
+        }
     }
 }
