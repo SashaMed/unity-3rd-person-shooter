@@ -7,11 +7,11 @@ public class WeaponController : MonoBehaviour
 {
     [SerializeField] private GameObject[] gunsList;
 
-    private GunScript activeGun;
+    private GunSystem activeGun;
 
     private void Start()
     {
-        activeGun = gunsList[0].GetComponent<GunScript>();
+        activeGun = gunsList[0].GetComponent<GunSystem>();
     }
 
     // Update is called once per frame
