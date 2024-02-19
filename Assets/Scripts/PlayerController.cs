@@ -46,8 +46,14 @@ public class PlayerController : MonoBehaviour
 
     private void Death(Vector3 pos)
     {
-        isDead= true;
+        OnLevelEnd();
         animator.CrossFade("death", animationPlayTransition);
+    }
+
+    public void OnLevelEnd()
+    {
+        isDead = true;
+        aimTarget.position = aimTarget.position;
     }
 
     void Update()

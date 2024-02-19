@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e4147e194edd954cb18c3bffce9451d, type: 3}
   m_Name: TurretShootConfigData
   m_EditorClassIdentifier: 
+  shootSound: {fileID: 8300000, guid: 4d6d816408e48e7428e863203522508f, type: 3}
   hitMask:
     serializedVersion: 2
     m_Bits: 193

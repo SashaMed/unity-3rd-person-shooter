@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Shoot Config", menuName = "Guns/Shoot Configuration")]
 public class ShootConfigScriptableObject : ScriptableObject
 {
-
+    public AudioClip shootSound;
     public LayerMask hitMask;
     public float fireRate = 0.25f;
     public float maxSpreadTime = 1.0f;

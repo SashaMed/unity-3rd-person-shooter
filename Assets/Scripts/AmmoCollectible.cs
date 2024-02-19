@@ -9,7 +9,7 @@ public class AmmoCollectible : MonoBehaviour, ICollectible
     [SerializeField] private int ammoAmount = 60;
     [SerializeField] private GameObject particle;
     [SerializeField] private GameObject takeParticle;
-
+    [SerializeField] private AudioClip takeSound;
 
     public void Collect(GameObject player)
     {
@@ -21,6 +21,7 @@ public class AmmoCollectible : MonoBehaviour, ICollectible
             {
                 gameObject.SetActive(false);
                 particle.SetActive(false);
+                SoundPool.SoundInstance.PlayVFXSound(takeSound, transform.position); 
                 Instantiate(takeParticle,transform.position, Quaternion.identity);
             }
         }

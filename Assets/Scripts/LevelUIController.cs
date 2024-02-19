@@ -78,17 +78,20 @@ public class LevelUIController : MonoBehaviour
 
     public void OnExitClick()
     {
+        SoundPool.SoundInstance.PlayButtonSound();
         Application.Quit();
     }
 
     public void OnRestartClick()
     {
+        SoundPool.SoundInstance.PlayButtonSound();
         var sceneNum = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(sceneNum);
     }
 
     public void OnStartClick()
     {
+        SoundPool.SoundInstance.PlayButtonSound();
         Cursor.lockState = CursorLockMode.Locked;
         Time.timeScale = 1;
         mainMenuUI.SetActive(false);

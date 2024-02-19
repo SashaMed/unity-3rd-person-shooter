@@ -12,6 +12,7 @@ public class TurretController : MonoBehaviour
     [SerializeField] private float waitForPlayerTime = 2f;
     [SerializeField] private float explosionForce = 5f;
     [SerializeField] private GunSystem gun;
+    [SerializeField] private AudioClip destroySound;
 
     private bool canRotate = true;
     private bool wasHitedRecently;
@@ -108,6 +109,7 @@ public class TurretController : MonoBehaviour
         var direction = new Vector3(Random.Range(-1, 1), Random.Range(-1, 1), Random.Range(-1, 1));
         turretHeadRB.AddForce((direction + Vector3.up) * explosionForce, ForceMode.Impulse);
         explosionParticle.SetActive(true);
+        SoundPool.SoundInstance.PlayVFXSound(destroySound, pos);
         gameObject.SetActive(false);
     }
 

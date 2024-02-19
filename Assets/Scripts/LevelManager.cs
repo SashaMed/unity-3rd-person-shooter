@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
+    [SerializeField] private AudioClip winSound;
+    [SerializeField] private AudioClip loseSound;
+
     private GameObject[] enemies;
     private PlayerHealth player;
 
@@ -36,6 +39,7 @@ public class LevelManager : MonoBehaviour
     {
         defeatsCount++;
         SaveData();
+        SoundPool.SoundInstance.PlayVFXSound(loseSound, player.gameObject.transform.position);
         LevelUIController.Instance.ShowLevelEndUI("you lose", victoriesCount, defeatsCount);
     }
 
@@ -46,6 +50,7 @@ public class LevelManager : MonoBehaviour
         {
             victoriesCount++;
             SaveData();
+            SoundPool.SoundInstance.PlayVFXSound(winSound, player.gameObject.transform.position);
             StartCoroutine(TimeDisablerCoroutine());
             LevelUIController.Instance.ShowLevelEndUI("you win", victoriesCount, defeatsCount);
         }
@@ -55,6 +60,8 @@ public class LevelManager : MonoBehaviour
     {
 
         yield return new WaitForSeconds(1f);
+        var playerController = player.GetComponent<PlayerController>();
+        playerController.OnLevelEnd();
         Time.timeScale = 0;
     }
 

@@ -13,6 +13,8 @@ public class GunSystem : MonoBehaviour
     //public Vector3 spawnPoint;
     private Vector3 spawnRotation;
 
+    [SerializeField] private AudioClip reloadSound;
+
     [SerializeField] private GameObject gunModel;
 
     [SerializeField] private bool shouldRecoil = true;
@@ -87,6 +89,7 @@ public class GunSystem : MonoBehaviour
         {
             return;
         }
+        SoundPool.SoundInstance.PlayVFXSound(shootConfig.shootSound, transform.position);
         lastShootTime = Time.time;
         shootSystem.Play();
         ammoConfig.currentClipAmmo--;
@@ -186,6 +189,8 @@ public class GunSystem : MonoBehaviour
     {
         ammoConfig.Reload();
     }
+
+    public void PlayReloadSound() => SoundPool.SoundInstance.PlayVFXSound(reloadSound, transform.position);
 
     public bool CanReload() => ammoConfig.CanReload();
 

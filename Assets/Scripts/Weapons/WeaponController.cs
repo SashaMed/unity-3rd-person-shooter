@@ -40,7 +40,11 @@ public class WeaponController : MonoBehaviour
         {
             StartCoroutine(ReloadCoroutine());
         }
-        SetUI();
+        if (!isReloading)
+        {
+            SetUI();
+        }
+
         if (Mouse.current.middleButton.isPressed)
         {
             ChangeActiveWeapon();
@@ -87,17 +91,14 @@ public class WeaponController : MonoBehaviour
 
     private void SetUI()
     {
-        if (!isReloading)
-        {
-            LevelUIController.Instance.SetFillForReloadImage(deltaForReloadVolume * activeGun.GetCurrentClipAmmo());
-            LevelUIController.Instance.SetAmmoAmountText(activeGun.GetAmmoAmoubtInfoString());
-        }
+        LevelUIController.Instance.SetFillForReloadImage(deltaForReloadVolume * activeGun.GetCurrentClipAmmo());
+        LevelUIController.Instance.SetAmmoAmountText(activeGun.GetAmmoAmoubtInfoString());
     }
 
     private IEnumerator ReloadCoroutine()
     {
-        LevelUIController.Instance.SetFillForReloadImage(deltaForReloadVolume * activeGun.GetCurrentClipAmmo());
-        LevelUIController.Instance.SetAmmoAmountText(activeGun.GetAmmoAmoubtInfoString());
+        SetUI();
+        activeGun.PlayReloadSound();
         isReloading = true;
         var reloadTime = activeGun.GetReloadTime();
         var deltaReloadTime = reloadTime / reloadFillIterations;
