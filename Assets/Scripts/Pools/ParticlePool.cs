@@ -6,9 +6,11 @@ public class ParticlePool : MonoBehaviour
 {
     public ParticlePoolBase HitParticlesPool { get => hitParticlesPool; private set => hitParticlesPool = value; }
     public ParticlePoolBase DamageablesHitParticlesPool { get => takeParticlesPool; private set => takeParticlesPool = value; }
+    public ParticlePoolBase BloodParticlesPool { get => bloodParticlesPool; private set => bloodParticlesPool = value; }
 
     [SerializeField] private ParticlePoolBase hitParticlesPool;
     [SerializeField] private ParticlePoolBase takeParticlesPool;
+    [SerializeField] private ParticlePoolBase bloodParticlesPool;
 
 
     public static ParticlePool Instance { get; protected set; }
@@ -28,6 +30,10 @@ public class ParticlePool : MonoBehaviour
         else if (id == DamageablesHitParticlesPool.ParticlePoolId)
         {
             DamageablesHitParticlesPool.AddToPool(particle);
+        }
+        else if (id == bloodParticlesPool.ParticlePoolId)
+        {
+            bloodParticlesPool.AddToPool(particle);
         }
         particle.SetActive(false);
     }

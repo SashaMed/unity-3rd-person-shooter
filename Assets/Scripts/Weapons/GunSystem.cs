@@ -35,12 +35,6 @@ public class GunSystem : MonoBehaviour
 
     public void Awake()
     {
-        //activeMonoBehaviour = ActiveMonoBehaviour;
-
-        //model = Instantiate(modelPrefab);
-        //model.transform.SetParent(Parent, false);
-        //model.transform.localPosition = spawnPoint;
-        //model.transform.localRotation = Quaternion.Euler(spawnRotation);
         var spawnRotationQuaternion = transform.rotation;
         spawnRotation = new Vector3(spawnRotationQuaternion.x, spawnRotationQuaternion.y, spawnRotationQuaternion.z);
         trailPool = new ObjectPool<TrailRenderer>(CreateTrail);

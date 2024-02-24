@@ -8,6 +8,8 @@ using UnityEngine.UI;
 public class LevelUIController : MonoBehaviour
 {
     [SerializeField] private GameObject mainMenuUI;
+    [SerializeField] private bool mainMenuTurnOn = true;    
+
 
     [Header("Gun UI")]
     [SerializeField] private TextMeshProUGUI gunNameText;
@@ -25,6 +27,8 @@ public class LevelUIController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI victoriesLevelEndUI;
     [SerializeField] private TextMeshProUGUI defeadsLevelEndUI;
 
+
+
     public static LevelUIController Instance { get; private set; }
 
 
@@ -38,9 +42,17 @@ public class LevelUIController : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        Time.timeScale = 0;
         leveEndUI.SetActive(false);
-        mainMenuUI.SetActive(true);
+        Time.timeScale = 0;
+        if (mainMenuTurnOn)
+        {
+            mainMenuUI.SetActive(true);
+        }
+        else
+        {
+            Time.timeScale = 1;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
     }
 
     public void ShowLevelEndUI(string header, int victories, int defeats)

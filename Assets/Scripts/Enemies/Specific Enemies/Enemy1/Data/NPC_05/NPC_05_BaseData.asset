@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 954f3a4361a016f49901f8fe62c3f7de, type: 3}
+  m_Name: NPC_05_BaseData
+  m_EditorClassIdentifier: 
+  damageHopSpeed: 10
+  stunResistance: 3
+  stunRecoveryTime: 2
+  wallCheckDistance: 0.3
+  obstaclesCheckDistance: 0.6
+  ledgeCheckDistance: 1
+  closeRangeActionDistance: 0.7
+  extremeCloseRangeActionDistance: 0.5
+  maxAgroDistance: 8
+  minAgroDistance: 7
+  groundCheckRadius: 0.3
+  meleeAttackCooldown: 1
+  rangeAttackCooldown: 1
+  whatIsObstacles:
+    serializedVersion: 2
+    m_Bits: 4096
+  whatIsPlayer:
+    serializedVersion: 2
+    m_Bits: 1024
+  whatIsGround:
+    serializedVersion: 2
+    m_Bits: 320
+  collisionIgnoreDuration: 100
+  collisionNotIgnoreDuration: 0.5

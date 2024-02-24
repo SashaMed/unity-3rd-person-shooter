@@ -6,9 +6,11 @@ using UnityEngine.InputSystem;
 
 public class WeaponController : MonoBehaviour
 {
-    [SerializeField] private GameObject[] gunsList;
+    [SerializeField] private GameObject[] guns;
     [SerializeField] private bool autoReload = true;
     [SerializeField] private int reloadFillIterations = 10;
+    [SerializeField] private int firstActiveGunIndex = 0;
+
 
     public GunSystem ActiveGun { get; private set; }
 
@@ -18,11 +20,22 @@ public class WeaponController : MonoBehaviour
     private GunSystem activeGun;
     private bool isReloading;
 
+
     private void Start()
     {
         rigBuilder = GetComponent<RigBuilder>();
-        var gun = gunsList[0].GetComponent<GunSystem>();
+        if (firstActiveGunIndex >= guns.Length)
+        {
+            firstActiveGunIndex = 0;
+        }
+        var gun = guns[firstActiveGunIndex].GetComponent<GunSystem>();
         SetActiveWeapon(gun);
+        for (int i = 0; i < guns.Length; i++)
+        {
+            if (i == firstActiveGunIndex) continue;
+            var g = guns[i].GetComponent<GunSystem>();
+            g.SetActiveGunModel(false);
+        }
     }
 
 
@@ -59,13 +72,13 @@ public class WeaponController : MonoBehaviour
 
     private void ChangeActiveWeapon()
     {
-        if (gunsList.Length < 2)
+        if (guns.Length < 2)
         {
             return;
         }
         DisableCurrentActiveWeapon();
-        currentWeaponIndex = (++currentWeaponIndex % gunsList.Length == 0) ? 0 : currentWeaponIndex;
-        var gun = gunsList[currentWeaponIndex].GetComponent<GunSystem>();
+        currentWeaponIndex = (++currentWeaponIndex % guns.Length == 0) ? 0 : currentWeaponIndex;
+        var gun = guns[currentWeaponIndex].GetComponent<GunSystem>();
         SetActiveWeapon(gun);
     }
 

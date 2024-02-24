@@ -5,13 +5,15 @@ using UnityEngine;
 public class TurretDetection : MonoBehaviour
 {
     [SerializeField] private Transform turretHead;
-    [SerializeField] private float closeDetectionRadius = 3f;
+    [SerializeField] private float closeDetectionRadius = 7f;
+    [SerializeField] private float extremeCloseDetectionRadius = 3;
     [SerializeField] private float detectionRadius = 13;
     [SerializeField] private float detectionAngle = 45f;
     [SerializeField] private LayerMask targetMask;
     [SerializeField] private LayerMask obstacleMask;
 
-
+    public bool PlayerDetectedInBehind { get; private set; }
+    public bool PlayerDetectedInCloseRange { get; private set; }
     public bool PlayerDetected { get; private set; }
     public Vector3 PlayerPosition { get; private set; }
 
@@ -31,6 +33,10 @@ public class TurretDetection : MonoBehaviour
 
     void DetectPlayer()
     {
+        PlayerDetected = false;
+        PlayerDetectedInBehind = false;
+        PlayerDetectedInCloseRange = false;
+        PlayerPosition = new Vector3();
         var directionToPlayer = player.position - turretHead.position;
         var distanceToPlayer = Vector3.Distance(turretHead.position, player.position);
         if (distanceToPlayer >= detectionRadius)
@@ -47,18 +53,25 @@ public class TurretDetection : MonoBehaviour
             {
                 PlayerPosition = player.position;
                 PlayerDetected = true;
+                if (distanceToPlayer < closeDetectionRadius)
+                {
+                    PlayerDetectedInCloseRange = true;
+                }
                 return;
 
             }
         }
 
-        if (distanceToPlayer <= closeDetectionRadius)
+        if (distanceToPlayer <= extremeCloseDetectionRadius)
         {
             PlayerPosition = player.position;
+            PlayerDetectedInBehind = true;
             PlayerDetected = true;
             return;
         }
         PlayerDetected = false;
+        PlayerDetectedInBehind = false;
+        PlayerDetectedInCloseRange = false;
         PlayerPosition = new Vector3();
     }
 
@@ -70,6 +83,8 @@ public class TurretDetection : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(turretHead.position, closeDetectionRadius);
 
+        Gizmos.color = Color.black;
+        Gizmos.DrawWireSphere(turretHead.position, extremeCloseDetectionRadius);
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(turretHead.position, detectionRadius);
