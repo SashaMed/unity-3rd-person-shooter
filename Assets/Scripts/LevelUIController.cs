@@ -8,13 +8,15 @@ using UnityEngine.UI;
 public class LevelUIController : MonoBehaviour
 {
     [SerializeField] private GameObject mainMenuUI;
-    [SerializeField] private bool mainMenuTurnOn = true;    
+    [SerializeField] private bool mainMenuTurnOn = true;
+    [SerializeField] private int menuSceneIndex = 0;
 
 
     [Header("Gun UI")]
     [SerializeField] private TextMeshProUGUI gunNameText;
     [SerializeField] private TextMeshProUGUI ammoAmountText;
     [SerializeField] private Image reloadImage;
+    [SerializeField] private GameObject aimImage;
 
     [Header("Player Health UI")]
     [SerializeField] private TextMeshProUGUI playerHealthText;
@@ -53,6 +55,7 @@ public class LevelUIController : MonoBehaviour
             Time.timeScale = 1;
             Cursor.lockState = CursorLockMode.Locked;
         }
+        SetActiveAimImage(false);
     }
 
     public void ShowLevelEndUI(string header, int victories, int defeats)
@@ -107,5 +110,17 @@ public class LevelUIController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Time.timeScale = 1;
         mainMenuUI.SetActive(false);
+    }
+
+    public void OnMenuClick()
+    {
+        SoundPool.SoundInstance.PlayButtonSound();
+        Time.timeScale = 1;
+        SceneManager.LoadScene(menuSceneIndex);
+    }
+
+    public void SetActiveAimImage(bool flag)
+    {
+        aimImage.SetActive(flag);
     }
 }

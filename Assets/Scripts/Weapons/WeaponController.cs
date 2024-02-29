@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 using UnityEngine.InputSystem;
@@ -29,6 +30,7 @@ public class WeaponController : MonoBehaviour
             firstActiveGunIndex = 0;
         }
         var gun = guns[firstActiveGunIndex].GetComponent<GunSystem>();
+
         SetActiveWeapon(gun);
         for (int i = 0; i < guns.Length; i++)
         {
@@ -57,27 +59,41 @@ public class WeaponController : MonoBehaviour
         {
             SetUI();
         }
+        CheckForWeaponChange();
 
-        if (Mouse.current.middleButton.isPressed)
-        {
-            ChangeActiveWeapon();
-        }
-
-        float z = PlayerInputHandler.Instance.ScrollAction.ReadValue<float>();
-        if (z != 0)
-        {
-            ChangeActiveWeapon();
-        }
     }
 
-    private void ChangeActiveWeapon()
+    private void CheckForWeaponChange()
+    {
+        float z = PlayerInputHandler.Instance.ScrollAction.ReadValue<float>();
+        int dir = 0;
+        if (z > 0)
+        {
+            dir = 1;
+        }
+        else if (z < 0) 
+        {
+            dir = -1;
+        }
+        ChangeActiveWeapon(dir);
+    }
+
+    private void ChangeActiveWeapon(int dir)
     {
         if (guns.Length < 2)
         {
             return;
         }
         DisableCurrentActiveWeapon();
-        currentWeaponIndex = (++currentWeaponIndex % guns.Length == 0) ? 0 : currentWeaponIndex;
+        currentWeaponIndex += dir;
+        if (dir == 1)
+        {
+            currentWeaponIndex = (currentWeaponIndex % guns.Length == 0) ? 0 : currentWeaponIndex;
+        }
+        else
+        {
+            currentWeaponIndex = (currentWeaponIndex < 0) ? guns.Length -1 : currentWeaponIndex;
+        }
         var gun = guns[currentWeaponIndex].GetComponent<GunSystem>();
         SetActiveWeapon(gun);
     }
@@ -98,9 +114,6 @@ public class WeaponController : MonoBehaviour
         rigBuilder.layers[activeGun.rigBuilderLayerNumber].active = false;
         activeGun.SetActiveGunModel(false);
     }
-
-
-
 
     private void SetUI()
     {
@@ -143,5 +156,22 @@ public class WeaponController : MonoBehaviour
             && autoReload
             && activeGun.ShouldAutoReload()
             && activeGun.CanReload();
+    }
+
+
+    public bool AddAmmo(int amount, GunType ammoType)
+    {
+        bool res = false;
+        for(int i = 0; i < guns.Length;i ++)
+        {
+            var gunsSripts = guns[i].GetComponent<GunSystem>();
+            if (gunsSripts.type == ammoType)
+            {
+                res = gunsSripts.AddAmmo(amount, ammoType);
+                break;
+            }
+        }
+
+        return res;
     }
 }

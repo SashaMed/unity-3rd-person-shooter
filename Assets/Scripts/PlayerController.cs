@@ -33,6 +33,10 @@ public class PlayerController : MonoBehaviour
     private Vector2 currentAnimationBlendVector;
     private Vector2 animationVelocity;
 
+    private int moveXAnimationHash;
+    private int moveZAnimationHash;
+    private int deathAnimationHash;
+    private int jumpAnimationHash;
 
     private void Start()
     {
@@ -41,13 +45,17 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         controller = gameObject.GetComponent<CharacterController>();
         cameraTransform = Camera.main.transform;
+        moveXAnimationHash = Animator.StringToHash("moveX");
+        moveZAnimationHash = Animator.StringToHash("moveZ");
+        deathAnimationHash = Animator.StringToHash("death");
+        jumpAnimationHash = Animator.StringToHash("jump");
         //Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void Death(Vector3 pos)
     {
         OnLevelEnd();
-        animator.CrossFade("death", animationPlayTransition);
+        animator.CrossFade(deathAnimationHash, animationPlayTransition);
     }
 
     public void OnLevelEnd()
@@ -87,7 +95,7 @@ public class PlayerController : MonoBehaviour
         var jumpInput = PlayerInputHandler.Instance.JumpAction.triggered;
         if (jumpInput && groundedPlayer)
         {
-            animator.CrossFade("jump", animationPlayTransition);
+            animator.CrossFade(jumpAnimationHash, animationPlayTransition);
             playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
 
         }
@@ -113,8 +121,8 @@ public class PlayerController : MonoBehaviour
 
     private void SetAnimationParameters()
     {
-        animator.SetFloat("moveX", currentAnimationBlendVector.x);
-        animator.SetFloat("moveZ", currentAnimationBlendVector.y);
+        animator.SetFloat(moveXAnimationHash, currentAnimationBlendVector.x);
+        animator.SetFloat(moveZAnimationHash, currentAnimationBlendVector.y);
     }
 
     private void OnTriggerEnter(Collider other)

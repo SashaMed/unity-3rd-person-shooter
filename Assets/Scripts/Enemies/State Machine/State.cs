@@ -7,7 +7,7 @@ public class State
     protected FiniteStateMachine stateMachine;
     protected Entity entity;
     public float startTime { get; protected set; }
-    protected string animBoolName;
+    protected int animBoolHash;
     protected Core core;
 
     public State(FiniteStateMachine stateMachine, Entity entity, string animBoolName)
@@ -15,7 +15,7 @@ public class State
         core = entity.Core;
         this.stateMachine = stateMachine;
         this.entity = entity;
-        this.animBoolName = animBoolName;
+        this.animBoolHash = Animator.StringToHash(animBoolName);
     }
 
     public virtual void Enter()
@@ -23,12 +23,12 @@ public class State
         //Debug.Log($"{core.transform.parent.name} {animBoolName}");
         startTime = Time.time;
         DoChecks();
-        entity.animator.SetBool(animBoolName, true);
+        entity.animator.SetBool(animBoolHash, true);
     }
 
     public virtual void Exit()
     {
-        entity.animator.SetBool(animBoolName, false);
+        entity.animator.SetBool(animBoolHash, false);
     }
 
     public virtual void LogicUpdate()

@@ -56,6 +56,10 @@ public class PlayerDetector : MonoBehaviour
 
     public virtual bool CheckPlayerCloseBehind()
     {
+        if (player == null)
+        {
+            return false;
+        }
         var distanceToPlayer = Vector3.Distance(head.position, player.position);
         if (distanceToPlayer >= closeBehindDetectionRadius)
         {
@@ -66,6 +70,10 @@ public class PlayerDetector : MonoBehaviour
 
     private bool DetectedPlayer(float detectedDistance)
     {
+        if (player == null)
+        {
+            return false;
+        }
         var directionToPlayer = player.position - head.position;
         var distanceToPlayer = Vector3.Distance(head.position, player.position);
         if (distanceToPlayer >= detectedDistance)

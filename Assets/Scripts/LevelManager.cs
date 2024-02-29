@@ -31,6 +31,8 @@ public class LevelManager : MonoBehaviour
         SubscribeToEnemiesDeaths(enemies);
     }
 
+
+
     private void SubscribeToEnemiesDeaths(EnemyHealth[] enemies)
     {
         enemiesCount = enemies.Length;

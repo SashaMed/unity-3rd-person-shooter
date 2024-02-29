@@ -1,6 +1,10 @@
+using System;
 using System.Collections;
+using System.Drawing;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Pool;
+using UnityEngine.UIElements;
 
 //[CreateAssetMenu(fileName = "Gun", menuName = "Guns/Gun", order = 0)]
 public class GunSystem : MonoBehaviour
@@ -12,7 +16,9 @@ public class GunSystem : MonoBehaviour
     //public GameObject modelPrefab;
     //public Vector3 spawnPoint;
     private Vector3 spawnRotation;
-
+    [SerializeField] private Vector3 aimOffset;
+    [SerializeField] private float penetratingThreshold = 1f;
+    //[SerializeField] private float minAimDistance = 3.0f;
     [SerializeField] private AudioClip reloadSound;
 
     [SerializeField] private GameObject gunModel;
@@ -66,6 +72,42 @@ public class GunSystem : MonoBehaviour
             stopShootingTime = Time.time;
             lastFrameWantedToShoot = false;
         }
+        AimAtScreenCenter();
+    }
+
+
+    private void AimAtScreenCenter()
+    {
+        var playerCamera = Camera.main;
+        var screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
+        var ray = playerCamera.ScreenPointToRay(screenCenter);
+
+        Vector3 targetPoint;
+
+        targetPoint = transform.position + playerCamera.transform.forward * 1000;
+        //RaycastHit hit;
+        //if (Physics.Raycast(ray, out hit))
+        //{
+        //    //if ((hit.point - ray.origin).magnitude < minAimDistance)
+        //    //{
+        //    //    targetPoint = transform.position + playerCamera.transform.forward * 1000; 
+        //    //}
+        //    //else
+        //    {
+        //        //targetPoint = hit.point;
+        //    }
+        //}
+        //else
+        //{
+        //    targetPoint = ray.GetPoint(1000); 
+        //}
+
+        var direction = targetPoint - transform.position;
+        var lookRotation = Quaternion.LookRotation(direction);
+        var offsetRotation = Quaternion.Euler(aimOffset);
+        lookRotation *= offsetRotation;
+
+        transform.rotation = Quaternion.Lerp(transform.rotation, lookRotation, Time.deltaTime * 10); 
     }
 
 
@@ -87,27 +129,69 @@ public class GunSystem : MonoBehaviour
         lastShootTime = Time.time;
         shootSystem.Play();
         ammoConfig.currentClipAmmo--;
-        var spreadAmount = shootConfig.GetSpread(Time.time - initialClickTime);
-        if (shouldRecoil)
+        for (int i = 0; i < shootConfig.countOfBullets; i++)
         {
-            transform.forward += transform.TransformDirection(spreadAmount);
+            var spreadAmount = shootConfig.GetSpread(Time.time - initialClickTime);
+            if (shouldRecoil)
+            {
+                transform.forward += transform.TransformDirection(spreadAmount);
+            }
+            var shootDirection = shootSystem.transform.forward + spreadAmount;
+            ShootRaycast(shootDirection);
         }
-        var shootDirection = shootSystem.transform.forward + spreadAmount;
-        ShootRaycast(shootDirection);
     }
 
 
     private void ShootRaycast(Vector3 shootDirection)
     {
+        var point = shootSystem.transform.position + shootDirection * trailConfig.missDistance;
+        if (shootConfig.isPenetrating)
+        {
+            RaycastHit[] hits = Physics.RaycastAll(shootSystem.transform.position, shootDirection, float.MaxValue, shootConfig.hitMask);
+            StartCoroutine(PlayPenetratingTrail(shootSystem.transform.position, point, hits));
+            return;
+        }
         if (Physics.Raycast(shootSystem.transform.position, shootDirection, out RaycastHit hit, float.MaxValue, shootConfig.hitMask))
         {
             StartCoroutine(PlayTrail(shootSystem.transform.position, hit.point, hit));
         }
         else
         {
-            var point = shootSystem.transform.position + shootDirection * trailConfig.missDistance;
             StartCoroutine(PlayTrail(shootSystem.transform.position, point, new RaycastHit()));
         }
+    }
+
+    private IEnumerator PlayPenetratingTrail(Vector3 startPoint, Vector3 endPoint, RaycastHit[] hits)
+    {
+        Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
+        TrailRenderer instance = trailPool.Get();
+        instance.gameObject.SetActive(true);
+        instance.transform.position = startPoint;
+        yield return null;
+
+        instance.emitting = true;
+        var threshold = penetratingThreshold;
+        var distance = Vector3.Distance(startPoint, endPoint);
+        var remainingDistance = distance;
+        var index = 0;
+        while (remainingDistance > 0)
+        {
+            if (index < hits.Length && 
+                Vector3.Distance(instance.transform.position, hits[index].transform.position) < threshold)
+            {
+                CheckHit(instance.transform.position, hits[index]);
+                index++;
+            }
+            instance.transform.position = Vector3.Lerp(startPoint, endPoint, Mathf.Clamp01(1 - (remainingDistance / distance)));
+            remainingDistance -= trailConfig.simulationSpeed * Time.deltaTime;
+            yield return null;
+        }
+        instance.transform.position = endPoint;
+        yield return new WaitForSeconds(trailConfig.duration);
+        yield return null;
+        instance.emitting = false;
+        instance.gameObject.SetActive(false);
+        trailPool.Release(instance);
     }
 
     private IEnumerator PlayTrail(Vector3 startPoint, Vector3 endPoint, RaycastHit hit)
@@ -119,8 +203,8 @@ public class GunSystem : MonoBehaviour
 
         instance.emitting = true;
 
-        float distance = Vector3.Distance(startPoint, endPoint);
-        float remainingDistance = distance;
+        var distance = Vector3.Distance(startPoint, endPoint);
+        var remainingDistance = distance;
         while (remainingDistance > 0)
         {
             instance.transform.position = Vector3.Lerp(startPoint, endPoint, Mathf.Clamp01(1 - (remainingDistance / distance)));

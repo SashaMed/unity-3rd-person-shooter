@@ -5,7 +5,9 @@ using UnityEngine;
 public enum GunType 
 {
     Rifle,
-    Pistol
+    Pistol,
+    Shotgun,
+    Sniper
 }
 
 

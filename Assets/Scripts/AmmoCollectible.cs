@@ -16,7 +16,7 @@ public class AmmoCollectible : MonoBehaviour, ICollectible
         var weaponController = player.GetComponent<WeaponController>();
         if (weaponController != null)
         {
-            var result = weaponController.ActiveGun.AddAmmo(ammoAmount, gunType);
+            var result = weaponController.AddAmmo(ammoAmount, gunType);
             if (result)
             {
                 gameObject.SetActive(false);
