@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 playerVelocity;
     private bool groundedPlayer;
     private Animator animator;
+    private PlayerHealth health;
 
     private bool isDead = false;
 
@@ -38,10 +39,10 @@ public class PlayerController : MonoBehaviour
     private int deathAnimationHash;
     private int jumpAnimationHash;
 
-    private void Start()
+    private void Awake()
     {
-        var health = GetComponent<PlayerHealth>();
-        health.OnDeath += Death;
+        health = GetComponent<PlayerHealth>();
+
         animator = GetComponent<Animator>();
         controller = gameObject.GetComponent<CharacterController>();
         cameraTransform = Camera.main.transform;
@@ -50,6 +51,16 @@ public class PlayerController : MonoBehaviour
         deathAnimationHash = Animator.StringToHash("death");
         jumpAnimationHash = Animator.StringToHash("jump");
         //Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    private void OnEnable()
+    {
+        health.OnDeath += Death;
+    }
+
+    private void OnDisable()
+    {
+        health.OnDeath -= Death;
     }
 
     private void Death(Vector3 pos)

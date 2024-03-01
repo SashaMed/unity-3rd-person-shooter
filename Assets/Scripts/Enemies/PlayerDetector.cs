@@ -1,8 +1,9 @@
+using Assets.Scripts.Interfaces;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerDetector : MonoBehaviour
+public class PlayerDetector : MonoBehaviour, IPlayerDetector
 {
     [SerializeField] private Transform head;
     [SerializeField] private float minAgroDetectionRadius = 7f;
@@ -25,12 +26,6 @@ public class PlayerDetector : MonoBehaviour
     public Transform PlayerTransform { get; private set; }
 
     private Transform player;
-
-    private void Awake()
-    {
-        var playerScript = (PlayerController)FindObjectOfType(typeof(PlayerController));
-        player = playerScript.gameObject.transform;
-    }
 
 
     public virtual bool CheckPlayerInMinAgroRange()
@@ -127,5 +122,10 @@ public class PlayerDetector : MonoBehaviour
         Gizmos.color = Color.blue;
         Gizmos.DrawRay(head.position, fovLine1);
         Gizmos.DrawRay(head.position, fovLine2);
+    }
+
+    public void SetPlayer(Transform playerTransform)
+    {
+        player = playerTransform;
     }
 }

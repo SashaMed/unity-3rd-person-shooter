@@ -12,14 +12,24 @@ public class VCamSwitch : MonoBehaviour
     private CinemachineVirtualCamera virtualCamera;
     private InputAction aimAction;
 
-    void Awake()
+    void Start()
     {
         virtualCamera = GetComponent<CinemachineVirtualCamera>();
         aimAction = PlayerInputHandler.Instance.AimAction;
+        SetEvents();
     }
 
 
     private void OnEnable()
+    {
+        if (aimAction == null)
+        {
+            return;
+        }
+        SetEvents();
+    }
+
+    private void SetEvents()
     {
         aimAction.performed += _ => StartAim();
         aimAction.canceled += _ => CancelAim();

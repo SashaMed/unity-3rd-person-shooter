@@ -1,8 +1,9 @@
+using Assets.Scripts.Interfaces;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TurretDetection : MonoBehaviour
+public class TurretDetection : MonoBehaviour, IPlayerDetector
 {
     [SerializeField] private Transform turretHead;
     [SerializeField] private float closeDetectionRadius = 7f;
@@ -20,11 +21,6 @@ public class TurretDetection : MonoBehaviour
 
     private Transform player;
 
-    private void Start()
-    {
-        var playerScript = (PlayerController)FindObjectOfType(typeof(PlayerController));
-        player = playerScript.gameObject.transform;
-    }
 
     private void Update()
     {
@@ -94,5 +90,10 @@ public class TurretDetection : MonoBehaviour
         Gizmos.color = Color.blue;
         Gizmos.DrawRay(turretHead.position, fovLine1);
         Gizmos.DrawRay(turretHead.position, fovLine2);
+    }
+
+    public void SetPlayer(Transform playerTransform)
+    {
+        player = playerTransform;
     }
 }

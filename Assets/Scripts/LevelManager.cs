@@ -12,8 +12,8 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private GameObject cinemachine1;
     [SerializeField] private GameObject cinemachine2;
 
-    private GameObject[] enemies;
-    private PlayerHealth player;
+    private EnemyHealth[] enemies;
+    private PlayerHealth playerHealth;
 
     private int enemiesCount;
     private int deadEnemies;
@@ -25,13 +25,47 @@ public class LevelManager : MonoBehaviour
     {
         victoriesCount = PlayerPrefs.GetInt(nameof(victoriesCount), 0);
         defeatsCount = PlayerPrefs.GetInt(nameof(defeatsCount), defeatsCount);
-        player = (PlayerHealth)FindObjectOfType(typeof(PlayerHealth));
-        player.OnDeath += OnPlayerDeath;
-        var enemies = (EnemyHealth[])FindObjectsOfType(typeof(EnemyHealth));
-        SubscribeToEnemiesDeaths(enemies);
+        //playerHealth = (PlayerHealth)FindObjectOfType(typeof(PlayerHealth));
+        //enemies = (EnemyHealth[])FindObjectsOfType(typeof(EnemyHealth));
     }
 
 
+    public void SetPlayer(GameObject player)
+    {
+        var playerHealth = player.GetComponent<PlayerHealth>();
+        if (playerHealth != null)
+        {
+            this.playerHealth = playerHealth;
+            this.playerHealth.OnDeath += OnPlayerDeath;
+        }
+    }
+
+    public void SetEnemies(EnemyHealth[] en)
+    {
+        if (en != null)
+        {
+            enemies = en;
+            SubscribeToEnemiesDeaths(enemies);
+        }
+    }
+
+    private void OnEnable()
+    {
+        if (playerHealth != null)
+        {
+            playerHealth.OnDeath += OnPlayerDeath;
+        }
+        if (enemies != null)
+        {
+            SubscribeToEnemiesDeaths(enemies);
+        }
+    }
+
+    private void OnDisable()
+    {
+        playerHealth.OnDeath -= OnPlayerDeath;
+        UnsubscribeFromEnemiesDeaths(enemies);
+    }
 
     private void SubscribeToEnemiesDeaths(EnemyHealth[] enemies)
     {
@@ -42,12 +76,21 @@ public class LevelManager : MonoBehaviour
         }
     }
 
+    private void UnsubscribeFromEnemiesDeaths(EnemyHealth[] enemies)
+    {
+        enemiesCount = enemies.Length;
+        foreach (var enemy in enemies)
+        {
+            enemy.OnDeath -= OnEnemyDeath;
+        }
+    }
+
     private void OnPlayerDeath(Vector3 pos)
     {
         defeatsCount++;
         SaveData();
         StartCoroutine(TimeDisablerCoroutine());
-        SoundPool.SoundInstance.PlayVFXSound(loseSound, player.gameObject.transform.position);
+        SoundPool.SoundInstance.PlayVFXSound(loseSound, playerHealth.gameObject.transform.position);
         LevelUIController.Instance.ShowLevelEndUI("you lose", victoriesCount, defeatsCount);
     }
 
@@ -59,7 +102,7 @@ public class LevelManager : MonoBehaviour
             victoriesCount++;
             SaveData();
             StartCoroutine(TimeDisablerCoroutine());
-            SoundPool.SoundInstance.PlayVFXSound(winSound, player.gameObject.transform.position);
+            SoundPool.SoundInstance.PlayVFXSound(winSound, playerHealth.gameObject.transform.position);
             LevelUIController.Instance.ShowLevelEndUI("you win", victoriesCount, defeatsCount);
         }
     }
@@ -70,7 +113,7 @@ public class LevelManager : MonoBehaviour
         yield return new WaitForSeconds(timeToDisableTime);
         cinemachine1.SetActive(false);
         cinemachine2.SetActive(false);
-        var playerController = player.GetComponent<PlayerController>();
+        var playerController = playerHealth.GetComponent<PlayerController>();
         playerController.OnLevelEnd();
         //Debug.Log("TimeDisablerCoroutine end");
         Time.timeScale = 0;
