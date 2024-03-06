@@ -53,7 +53,6 @@ public class LookForPlayerState : State
         //core.Movement.SetVelocityX(0);
         if (turnImmediately)
         {
-            core.Movement.Flip();
             lastTurnTime = Time.time;
             amountOfTurnsDone++;
             turnImmediately = false;

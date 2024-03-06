@@ -33,6 +33,10 @@ public class TurretDetection : MonoBehaviour, IPlayerDetector
         PlayerDetectedInBehind = false;
         PlayerDetectedInCloseRange = false;
         PlayerPosition = new Vector3();
+        if (player == null)
+        {
+            return;
+        }
         var directionToPlayer = player.position - turretHead.position;
         var distanceToPlayer = Vector3.Distance(turretHead.position, player.position);
         if (distanceToPlayer >= detectionRadius)

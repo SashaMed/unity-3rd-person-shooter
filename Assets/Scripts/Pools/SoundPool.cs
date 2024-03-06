@@ -12,7 +12,7 @@ public class SoundPool : PoolBase
     [SerializeField] private AudioClip buttonSound;
     [SerializeField] private AudioClip takeSounds;
 
-    private float lastVolume = 1;
+    private float lastVolume = 0.75f;
     public bool IsSoundsMuted { get; private set; } = false;
 
     public static SoundPool SoundInstance { get; private set; }

@@ -21,7 +21,6 @@ public class IdleState : State
     {
         base.Enter();
         isIdleTimeOver = false;
-        core.Movement.MoveX(0);
         SetRandomIdleTime();
     }
 
@@ -36,10 +35,6 @@ public class IdleState : State
     public override void Exit()
     {
         base.Exit();
-        if (flipAfterIdle)
-        {
-            core.Movement.Flip();
-        }
     }
 
     public override void LogicUpdate()

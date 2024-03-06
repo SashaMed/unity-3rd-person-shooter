@@ -25,8 +25,6 @@ public class LevelManager : MonoBehaviour
     {
         victoriesCount = PlayerPrefs.GetInt(nameof(victoriesCount), 0);
         defeatsCount = PlayerPrefs.GetInt(nameof(defeatsCount), defeatsCount);
-        //playerHealth = (PlayerHealth)FindObjectOfType(typeof(PlayerHealth));
-        //enemies = (EnemyHealth[])FindObjectsOfType(typeof(EnemyHealth));
     }
 
 
@@ -70,7 +68,7 @@ public class LevelManager : MonoBehaviour
     private void SubscribeToEnemiesDeaths(EnemyHealth[] enemies)
     {
         enemiesCount = enemies.Length;
-        foreach ( var enemy in enemies)
+        foreach (var enemy in enemies)
         {
             enemy.OnDeath += OnEnemyDeath;
         }
@@ -109,12 +107,13 @@ public class LevelManager : MonoBehaviour
 
     private IEnumerator TimeDisablerCoroutine()
     {
+        var playerController = playerHealth.GetComponent<PlayerController>();
+        playerController.OnLevelEnd();
         //Debug.Log("TimeDisablerCoroutine start");
         yield return new WaitForSeconds(timeToDisableTime);
         cinemachine1.SetActive(false);
         cinemachine2.SetActive(false);
-        var playerController = playerHealth.GetComponent<PlayerController>();
-        playerController.OnLevelEnd();
+
         //Debug.Log("TimeDisablerCoroutine end");
         Time.timeScale = 0;
     }

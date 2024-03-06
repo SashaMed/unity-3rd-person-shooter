@@ -17,6 +17,7 @@ public class LevelUIController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI ammoAmountText;
     [SerializeField] private Image reloadImage;
     [SerializeField] private GameObject aimImage;
+    [SerializeField] private GameObject aimImageParent;
 
     [Header("Player Health UI")]
     [SerializeField] private TextMeshProUGUI playerHealthText;
@@ -122,5 +123,10 @@ public class LevelUIController : MonoBehaviour
     public void SetActiveAimImage(bool flag)
     {
         aimImage.SetActive(flag);
+    }
+
+    public void DisableAimImage()
+    {
+        aimImageParent.SetActive(false);
     }
 }

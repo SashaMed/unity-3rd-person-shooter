@@ -50,10 +50,6 @@ public class StunState : State
         {
             isStunTimeOver = true;
         }
-        if (isGrounded && Time.time >= startTime + stateData.stunKnockbackTime)
-        {
-            core.Movement.MoveX(0);
-        }
     }
 
     public bool CanStun() => (Time.time >= lastStunTimeEnd + stateData.stunCooldown);

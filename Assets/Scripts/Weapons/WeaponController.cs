@@ -12,7 +12,7 @@ public class WeaponController : MonoBehaviour
     [SerializeField] private int reloadFillIterations = 10;
     [SerializeField] private int firstActiveGunIndex = 0;
 
-
+    private PlayerController playerController;
     public GunSystem ActiveGun { get; private set; }
 
     private int currentWeaponIndex = 0;
@@ -24,6 +24,7 @@ public class WeaponController : MonoBehaviour
 
     private void Start()
     {
+        playerController= GetComponent<PlayerController>();
         rigBuilder = GetComponent<RigBuilder>();
         if (firstActiveGunIndex >= guns.Length)
         {
@@ -46,6 +47,10 @@ public class WeaponController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (playerController.IsDead)
+        {
+            return;
+        }
         if (activeGun != null)
         {
             activeGun.Tick(Mouse.current.leftButton.isPressed);
@@ -65,6 +70,7 @@ public class WeaponController : MonoBehaviour
 
     private void CheckForWeaponChange()
     {
+
         float z = PlayerInputHandler.Instance.ScrollAction.ReadValue<float>();
         int dir = 0;
         if (z > 0)

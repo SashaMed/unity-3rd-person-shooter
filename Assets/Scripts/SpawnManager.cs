@@ -31,11 +31,18 @@ public class SpawnManager : MonoBehaviour
         PlayerSpawn();
         SpawnEnemy(turretPrefab, turretsSpawnTransform);
         SpawnEnemy(bugPrefab, bugsSpawnTransform);
-        levelManager.SetEnemies(enemiesHealth.ToArray());
+        if (levelManager != null)
+        {
+            levelManager.SetEnemies(enemiesHealth.ToArray());
+        }
     }
 
     private void PlayerSpawn()
     {
+        if (playerPrefab == null || playerSpawnTransform == null)
+        {
+            return;
+        }
         var player = Instantiate(playerPrefab, playerSpawnTransform.position, playerSpawnTransform.rotation);
         defaultCamera.Follow = player.transform;
         defaultCamera.LookAt= player.transform;
@@ -60,7 +67,7 @@ public class SpawnManager : MonoBehaviour
                 enemiesHealth.Add(health);
             }
             var detector = turret.GetComponentInChildren<IPlayerDetector>();
-            if (detector != null)
+            if (detector != null && playerSpawnTransform != null)
             {
                 detector.SetPlayer(playerTransform);
             }

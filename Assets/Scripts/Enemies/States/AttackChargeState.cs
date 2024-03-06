@@ -36,7 +36,6 @@ public class AttackChargeState : State
         isDamageDone = false;
         entity.atsm.attackChargeState = this;
         isAnimationFinished = false;
-        core.Movement.SetVelocity(stateData.jumpStrength, stateData.jumpAngle, core.Movement.FacingDirection);
     }
 
     public override void Exit()

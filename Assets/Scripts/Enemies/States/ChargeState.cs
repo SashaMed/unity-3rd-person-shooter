@@ -32,7 +32,7 @@ public class ChargeState : State
         base.Enter();
         isChargeTimeOver = false;
         entity.AiAgent.SetTarget(entity.GetPlayerTransform(), stateData.chargeTime, stateData.rotationToPlayerSpeed);
-        //core.Movement.MoveZ(stateData.chargeSpeed);
+        core.Movement.MoveForward(stateData.chargeSpeed);
     }
 
     public override void Exit()
@@ -50,7 +50,7 @@ public class ChargeState : State
     public override void LogicUpdate()
     {
         base.LogicUpdate();
-        core.Movement.MoveZ(stateData.chargeSpeed);
+        core.Movement.MoveForward(stateData.chargeSpeed);
         if (Time.time >= startTime + stateData.chargeTime)
         {
             entity.AiAgent.StopMove();

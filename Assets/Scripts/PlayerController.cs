@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour
     private Animator animator;
     private PlayerHealth health;
 
-    private bool isDead = false;
+    public bool IsDead { get; private set; }
 
     private InputAction shootAction;
 
@@ -71,13 +71,14 @@ public class PlayerController : MonoBehaviour
 
     public void OnLevelEnd()
     {
-        isDead = true;
+        LevelUIController.Instance.DisableAimImage();
+        IsDead = true;
         aimTarget.position = aimTarget.position;
     }
 
     void Update()
     {
-        if (isDead) 
+        if (IsDead) 
         {
             return;
         }
